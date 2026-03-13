@@ -1,0 +1,169 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+// Defines a doubly-linked list structure
+struct List {
+    struct List *nextp;
+    struct List *prevp;
+    int data;
+};
+
+// Create a new element
+struct List *newElement(int data) {
+
+    struct List *elemp = (struct List*)malloc(sizeof(struct List));
+
+    if (elemp != NULL) {
+        elemp->nextp = NULL;
+        elemp->prevp = NULL;
+        elemp->data = data;
+        return elemp;
+    }
+    else {
+        printf("Error: malloc failed\n");
+        return NULL;
+    }
+}
+
+// Insert element at end
+void append(struct List *listp, int data) {
+
+    struct List *newp = newElement(data);
+    struct List *tail = listp;
+
+    if (newp == NULL)
+        return;
+
+    while (tail->nextp != NULL)
+        tail = tail->nextp;
+
+    tail->nextp = newp;
+    newp->prevp = tail;
+}
+
+// Print list forward
+void printList(struct List *listp)
+{
+    while (listp != NULL)
+    {
+        printf("%d ", listp->data);
+        listp = listp->nextp;
+    }
+    printf("\n");
+}
+
+// Print list in reverse
+void printReverse(struct List *listp)
+{
+    if (listp == NULL)
+        return;
+
+    struct List *tail = listp;
+
+    while (tail->nextp != NULL)
+        tail = tail->nextp;
+
+    while (tail != NULL)
+    {
+        printf("%d ", tail->data);
+        tail = tail->prevp;
+    }
+    printf("\n");
+}
+
+// Delete head
+void deleteHead(struct List **headpp)
+{
+    if (*headpp != NULL)
+    {
+        struct List *oldheadp = *headpp;
+
+        *headpp = oldheadp->nextp;
+
+        if (*headpp != NULL)
+            (*headpp)->prevp = NULL;
+
+        free(oldheadp);
+    }
+    else
+    {
+        printf("Cannot delete head; list is NULL\n");
+    }
+}
+
+// Delete element by value
+void deleteElementByValue(struct List *listp, int data)
+{
+    if (listp == NULL)
+        return;
+
+    struct List *currentp = listp->nextp;
+    struct List *prevp = listp;
+
+    while (currentp != NULL)
+    {
+        if (currentp->data == data)
+        {
+            prevp->nextp = currentp->nextp;
+
+            if (currentp->nextp != NULL)
+                currentp->nextp->prevp = prevp;
+
+            free(currentp);
+            return;
+        }
+
+        prevp = currentp;
+        currentp = currentp->nextp;
+    }
+}
+
+// Find max value
+int findMax(struct List *listp)
+{
+    int max = listp->data;
+
+    while (listp != NULL)
+    {
+        if (listp->data > max)
+            max = listp->data;
+
+        listp = listp->nextp;
+    }
+
+    return max;
+}
+
+// Main function to test
+int main()
+{
+    struct List *testList1 = newElement(10);
+
+    append(testList1, 20);
+    append(testList1, 30);
+    append(testList1, 99);
+    append(testList1, 50);
+
+    printf("Printing testList1: ");
+    printList(testList1);
+
+    int max = findMax(testList1);
+    printf("The maximum element of testList1 is: %d\n", max);
+
+    printf("Deleting first element with data %d\n", max);
+    deleteElementByValue(testList1, max);
+
+    printf("Printing testList1: ");
+    printList(testList1);
+
+    printf("Printing testList1 in reverse: ");
+    printReverse(testList1);
+
+    printf("Deleting head of testList1\n");
+    deleteHead(&testList1);
+
+    printf("Printing testList1: ");
+    printList(testList1);
+
+    return 0;
+}
